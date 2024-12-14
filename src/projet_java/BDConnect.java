@@ -14,7 +14,7 @@ public class BDConnect {
     public static Connection getConnection() {
         Connection connec = null;
         try {
-            // 使用 DriverManager 获取连接
+            // 使用 DriverManag
             connec = DriverManager.getConnection(DB_URL, USER, PASSWORD);
             System.out.println("成功连接到数据库！");
         } catch (SQLException e) {

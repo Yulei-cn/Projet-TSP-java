@@ -55,4 +55,42 @@ public class Region {
     public void displayRegionInfo() {
         System.out.println("区域名称：" + nom);
     }
+    
+ // 查询马赛的信息
+    public static void getVilleInfo(String nomVille) {
+        Connection connec = null;
+
+        try {
+            // 1. 从 BDConnect 获取连接
+            connec = BDConnect.getConnection();
+
+            if (connec != null) {
+                // 2. 创建 PreparedStatement 对象
+            	String requete = "SELECT ville_nom, ville_code_commune FROM villes_france_free WHERE LOWER(ville_nom) = LOWER(?)";
+
+                PreparedStatement pstmt = connec.prepareStatement(requete);
+                pstmt.setString(1, nomVille);
+
+                // 3. 执行查询操作
+                ResultSet res = pstmt.executeQuery();
+
+                // 4. 遍历查询结果并显示
+                while (res.next()) {
+                    String villeNom = res.getString("ville_nom");
+                    String codeCommune = res.getString("ville_code_commune");
+                    System.out.println("城市名称：" + villeNom + ", 邮编：" + codeCommune);
+                }
+
+                // 5. 关闭 ResultSet
+                res.close();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // 6. 使用 BDConnect 关闭连接
+            BDConnect.closeConnection(connec);
+        }
+    }
+
 }
