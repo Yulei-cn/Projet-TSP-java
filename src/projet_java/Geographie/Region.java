@@ -1,14 +1,27 @@
 package projet_java.Geographie;
 
-import java.sql.*;
-import projet_java.BDConnect;
+import java.util.Arrays;
+import java.util.List;
 
-public class Region {
-    private String nom;
+public enum Region {
+    // 枚举实例：名称、首府城市、面积、人口、包含的省份列表
+    ILE_DE_FRANCE("Île-de-France", new Ville("Paris", 48.8566, 2.3522), 12011, 12278210, Arrays.asList("75", "77", "78", "91", "92", "93", "94", "95")),
+    AUVERGNE_RHONE_ALPES("Auvergne-Rhône-Alpes", new Ville("Lyon", 45.75, 4.85), 69711, 8061973, Arrays.asList("01", "03", "07", "15", "26", "38", "42", "43", "63", "69", "73", "74")),
+    PROVENCE_ALPES_COTE_DAZUR("Provence-Alpes-Côte d'Azur", new Ville("Marseille", 43.2965, 5.3698), 31400, 5033382, Arrays.asList("04", "05", "06", "13", "83", "84"));
+
+    private final String nom;
+    private final Ville chefLieu; // 首府城市
+    private final double superficie; // 面积
+    private final int population; // 人口
+    private final List<String> departements; // 包含的省份列表
 
     // 构造函数
-    public Region(String nom) {
+    Region(String nom, Ville chefLieu, double superficie, int population, List<String> departements) {
         this.nom = nom;
+        this.chefLieu = chefLieu;
+        this.superficie = superficie;
+        this.population = population;
+        this.departements = departements;
     }
 
     // 获取区域名称
@@ -16,81 +29,44 @@ public class Region {
         return nom;
     }
 
-    // 从数据库中加载所有区域数据
-    public static void loadRegionsFromDatabase() {
-        Connection connec = null;
+    // 获取首府城市
+    public Ville getChefLieu() {
+        return chefLieu;
+    }
 
-        try {
-            // 1. 从 BDConnect 获取连接
-            connec = BDConnect.getConnection();
+    // 获取区域面积
+    public double getSuperficie() {
+        return superficie;
+    }
 
-            if (connec != null) {
-                // 2. 创建 Statement 对象
-                Statement statement = connec.createStatement();
+    // 获取区域人口
+    public int getPopulation() {
+        return population;
+    }
 
-                // 3. 执行查询操作
-                String requete = "SELECT name FROM regions"; 
-                ResultSet res = statement.executeQuery(requete);
+    // 获取省份列表
+    public List<String> getDepartements() {
+        return departements;
+    }
 
-                // 4. 遍历查询结果并创建 Region 对象
-                while (res.next()) {
-                    String nom = res.getString("name");
-                    Region region = new Region(nom);
-                    System.out.println("加载了区域：" + region.getNom());
-                }
-
-                // 5. 关闭 ResultSet
-                res.close();
+    // 根据城市名查找区域
+    public static Region findRegionByVille(String villeNom) {
+        for (Region region : Region.values()) {
+            if (region.getChefLieu().getNom().equalsIgnoreCase(villeNom)) {
+                return region;
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            // 6. 使用 BDConnect 关闭连接
-            BDConnect.closeConnection(connec);
         }
+        return null; // 如果未找到返回 null
     }
 
-    // 其他可能的方法，例如显示区域信息
-    public void displayRegionInfo() {
-        System.out.println("区域名称：" + nom);
+    @Override
+    public String toString() {
+        return "Region{" +
+                "nom='" + nom + '\'' +
+                ", chefLieu=" + chefLieu.getNom() +
+                ", superficie=" + superficie + " km²" +
+                ", population=" + population +
+                ", departements=" + departements +
+                '}';
     }
-    
- // 查询马赛的信息
-    public static void getVilleInfo(String nomVille) {
-        Connection connec = null;
-
-        try {
-            // 1. 从 BDConnect 获取连接
-            connec = BDConnect.getConnection();
-
-            if (connec != null) {
-                // 2. 创建 PreparedStatement 对象
-            	String requete = "SELECT ville_nom, ville_code_commune FROM villes_france_free WHERE LOWER(ville_nom) = LOWER(?)";
-
-                PreparedStatement pstmt = connec.prepareStatement(requete);
-                pstmt.setString(1, nomVille);
-
-                // 3. 执行查询操作
-                ResultSet res = pstmt.executeQuery();
-
-                // 4. 遍历查询结果并显示
-                while (res.next()) {
-                    String villeNom = res.getString("ville_nom");
-                    String codeCommune = res.getString("ville_code_commune");
-                    System.out.println("城市名称：" + villeNom + ", 邮编：" + codeCommune);
-                }
-
-                // 5. 关闭 ResultSet
-                res.close();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            // 6. 使用 BDConnect 关闭连接
-            BDConnect.closeConnection(connec);
-        }
-    }
-
 }

@@ -1,69 +1,72 @@
 package projet_java.Geographie;
 
-public class Ville {
-    private String nom;
-    private String codePostal;
-    private int population;
-    private double superficie;
-    private Region region;
+import projet_java.BDConnect;
 
-    public Ville(String nom, String codePostal, int population, double superficie, Region region) {
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Ville {
+    private String nom;      // 城市名称
+    private double latitude; // 纬度
+    private double longitude; // 经度
+
+    // 构造函数
+    public Ville(String nom, double latitude, double longitude) {
         this.nom = nom;
-        this.codePostal = codePostal;
-        this.population = population;
-        this.superficie = superficie;
-        this.region = region;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    // Getters and setters
+    // Getters
     public String getNom() {
         return nom;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public String getCodePostal() {
-        return codePostal;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setCodePostal(String codePostal) {
-        this.codePostal = codePostal;
-    }
+    // 从数据库加载所有城市信息
+    public static List<Ville> loadAllVilles() {
+        List<Ville> villes = new ArrayList<>();
+        String sql = "SELECT ville_nom, ville_latitude_deg, ville_longitude_deg FROM villes_france_free";
 
-    public int getPopulation() {
-        return population;
-    }
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-    public void setPopulation(int population) {
-        this.population = population;
-    }
+            // 遍历结果集
+            while (rs.next()) {
+                String nom = rs.getString("ville_nom");
+                double latitude = rs.getDouble("ville_latitude_deg");
+                double longitude = rs.getDouble("ville_longitude_deg");
 
-    public double getSuperficie() {
-        return superficie;
-    }
+                Ville ville = new Ville(nom, latitude, longitude);
+                villes.add(ville);
+            }
 
-    public void setSuperficie(double superficie) {
-        this.superficie = superficie;
-    }
+            System.out.println("成功加载城市列表，共 " + villes.size() + " 个城市。");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-    public Region getRegion() {
-        return region;
-    }
-
-    public void setRegion(Region region) {
-        this.region = region;
+        return villes;
     }
 
     @Override
     public String toString() {
         return "Ville{" +
                 "nom='" + nom + '\'' +
-                ", codePostal='" + codePostal + '\'' +
-                ", population=" + population +
-                ", superficie=" + superficie +
-                ", region=" + region.getNom() +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 '}';
     }
 }

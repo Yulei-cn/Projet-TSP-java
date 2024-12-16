@@ -1,9 +1,11 @@
+//Titulaire.java
 package projet_java.Personne;
 
 import projet_java.BDConnect;
 import projet_java.Geographie.Ville;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -25,28 +27,103 @@ public class Titulaire extends Personne {
         return numBureau;
     }
 
-    public static void insertTitulaire(int personneId, int numBureau) {
-        // 插入数据的 SQL 语句
-        String insertSQL = "INSERT INTO Titulaire (ID, numBureau) VALUES (?, ?)";
+    public static boolean checkTitulaireExists(int titulaireId) {
+        String checkSQL = "SELECT COUNT(*) FROM Titulaire WHERE ID = ?";
+        boolean exists = false;
 
-        // 使用 BDConnect 获取连接并插入数据
         try (Connection conn = BDConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
+             PreparedStatement pstmt = conn.prepareStatement(checkSQL)) {
 
-            // 设置占位符参数
-            pstmt.setInt(1, personneId); // 使用 `Personne` 的 ID 作为外键
-            pstmt.setInt(2, numBureau);
+            // 设置参数
+            pstmt.setInt(1, titulaireId);
 
-            // 执行插入
-            int rowsInserted = pstmt.executeUpdate();
-            if (rowsInserted > 0) {
-                System.out.println("Titulaire 数据插入成功！");
+            // 执行查询
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) { // 移动到结果行
+                    int count = rs.getInt(1); // 获取结果数量
+                    exists = count > 0; // 如果数量大于 0，表示存在
+                }
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return exists; // 返回是否存在
+    }
+
+    public static void insertTitulaire(int personneId, int disciplineId, int numBureau) {
+        String insertTitulaireSQL = "INSERT INTO Titulaire (ID, numBureau) VALUES (?, ?)";
+        String insertTitulaireDisciplineSQL = "INSERT INTO Titulaire_Discipline (ID, discipline_ID) VALUES (?, ?)";
+        if (checkTitulaireExists(personneId)) {
+            try (Connection conn = BDConnect.getConnection();
+            PreparedStatement pstmt2 = conn.prepareStatement(insertTitulaireDisciplineSQL)) {
+            pstmt2.setInt(1, personneId);
+            pstmt2.setInt(2, disciplineId);
+            int rowsInserted2 = pstmt2.executeUpdate();
+            if (rowsInserted2>0) {
+                System.out.println("Titulaire 数据插入成功！");
+                }
+            }
+            catch (SQLException e) {
+            e.printStackTrace();
+            }
+        }
+        else{
+        try (Connection conn = BDConnect.getConnection();
+            PreparedStatement pstmt1 = conn.prepareStatement(insertTitulaireSQL);
+            PreparedStatement pstmt2 = conn.prepareStatement(insertTitulaireDisciplineSQL)) {
+            pstmt1.setInt(1, personneId);
+            pstmt1.setInt(2, numBureau);
+            pstmt2.setInt(1, personneId);
+            pstmt2.setInt(2, disciplineId);
+            int rowsInserted1 = pstmt1.executeUpdate();
+            int rowsInserted2 = pstmt2.executeUpdate();
+            if (rowsInserted1 > 0 && rowsInserted2>0) {
+                System.out.println("Titulaire 数据插入成功！");
+                }
+            } 
+        catch (SQLException e) {
+            e.printStackTrace();
+
+            }
+        }
+    }
+
+
+
+    
+    // 按学科查询导师列表
+    public static void getTitulairesByDiscipline(int disciplineId) {
+        String querySQL = """
+                SELECT t.ID, p.nom, p.prenom, t.numBureau
+                FROM Titulaire t
+                JOIN Personne p ON t.ID = p.ID
+                WHERE t.discipline = ?;
+                """;
+
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(querySQL)) {
+
+            pstmt.setInt(1, disciplineId); // 设置学科 ID 参数
+            ResultSet rs = pstmt.executeQuery();
+
+            System.out.println("按学科查询的导师列表：");
+            while (rs.next()) {
+                int id = rs.getInt("ID");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                int numBureau = rs.getInt("numBureau");
+
+                System.out.printf("ID: %d, 姓名: %s %s, 办公室编号: %d%n", id, nom, prenom, numBureau);
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    
     @Override
     public String toString() {
         return "Titulaire{" +

@@ -1,9 +1,10 @@
+//CreatTable.java
 package projet_java.Personne;
-
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 public class CreatTable {
     public static void Creat() {
@@ -37,6 +38,37 @@ public class CreatTable {
                 );
                 """;
 
+        String createTitulaire_DisciplineTable="""
+                CREATE TABLE Titulaire_Discipline(
+                    ID INT REFERENCES Titulaire(ID),
+                    discipline_ID INT REFERENCES Discipline(ID),
+                    PRIMARY KEY (ID, discipline_ID)
+                );
+            """;
+
+        String createTriggerFunction = """
+                CREATE OR REPLACE FUNCTION check_titulaire_discipline()
+                RETURNS TRIGGER AS $$
+                DECLARE
+                    discipline_count INT;
+                BEGIN
+                    SELECT COUNT(*) INTO discipline_count
+                    FROM Titulaire_Discipline
+                    WHERE ID = NEW.ID;
+
+                    IF discipline_count > 1 THEN 
+                        RAISE EXCEPTION 'A Titulaire cannot have more than 2 Disciplines.';
+                    END IF;
+
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+                CREATE TRIGGER check_titulaire_discipline_trigger
+                BEFORE INSERT OR UPDATE ON Titulaire_Discipline
+                FOR EACH ROW
+                EXECUTE FUNCTION check_titulaire_discipline();
+                """;
+
         String createEtudiantTable = """
                 CREATE TABLE IF NOT EXISTS Etudiant (
                     ID INT PRIMARY KEY REFERENCES Personne(ID),
@@ -60,29 +92,54 @@ public class CreatTable {
                 );
                 """;
 
-        // 执行建表语句
+        // 验证触发器是否附加成功的 SQL
+        String validateTrigger = """
+                SELECT event_object_table, trigger_name
+                FROM information_schema.triggers
+                WHERE event_object_table = 'Titulaire';
+                """;
+
+        // 执行建表和触发器创建
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement()) {
 
-            // 创建表
-            stmt.execute(createPersonneTable);
-            System.out.println("表 Personne 创建成功！");
-            
-            stmt.execute(createDisciplineTable);
-            System.out.println("表 Discipline 创建成功！");
-            
-            stmt.execute(createTitulaireTable);
-            System.out.println("表 Titulaire 创建成功！");
-            
-            stmt.execute(createEtudiantTable);
-            System.out.println("表 Etudiant 创建成功！");
-            
-            stmt.execute(createChercheurTable);
-            System.out.println("表 Chercheur 创建成功！");
-            
-            stmt.execute(createMCFTable);
-            System.out.println("表 MCF 创建成功！");
-            
+            // 开启事务
+            conn.setAutoCommit(false);
+
+            try {
+                // 创建表
+                stmt.execute(createPersonneTable);
+                stmt.execute(createDisciplineTable);
+                stmt.execute(createTitulaireTable);
+                stmt.execute(createEtudiantTable); 
+                stmt.execute(createChercheurTable);
+                stmt.execute(createMCFTable);
+                 stmt.execute(createTitulaire_DisciplineTable);
+                // 创建触发器和触发器函数
+                stmt.execute(createTriggerFunction);
+
+
+                // 验证触发器是否附加成功
+                try (ResultSet rs = stmt.executeQuery(validateTrigger)) {
+                    while (rs.next()) {
+                        String tableName = rs.getString("event_object_table");
+                        String triggerName = rs.getString("trigger_name");
+                        System.out.printf("触发器 %s 已附加到表 %s%n", triggerName, tableName);
+                    }
+                }
+
+                // 提交事务
+                conn.commit();
+                System.out.println("所有表和触发器已成功创建！");
+            } catch (Exception e) {
+                // 如果发生错误，回滚事务
+                conn.rollback();
+                throw e;
+            } finally {
+                // 恢复自动提交
+                conn.setAutoCommit(true);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

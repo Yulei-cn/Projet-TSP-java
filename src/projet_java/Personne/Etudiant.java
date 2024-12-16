@@ -5,6 +5,7 @@ import projet_java.Geographie.Ville;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 
 public class Etudiant extends Personne {
     private String sujetDeThese;
@@ -61,6 +62,66 @@ public class Etudiant extends Personne {
         }
     }
 
+    // 按学科查询学生列表
+    public static void getEtudiantsByDiscipline(int disciplineId) {
+        String querySQL = """
+                SELECT e.ID, p.nom, p.prenom, e.sujetDeThese 
+                FROM Etudiant e
+                JOIN Personne p ON e.ID = p.ID
+                WHERE e.discipline = ?
+                """;
+
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(querySQL)) {
+
+            pstmt.setInt(1, disciplineId); // 设置学科 ID 参数
+            ResultSet rs = pstmt.executeQuery();
+
+            System.out.println("按学科查询的学生列表：");
+            while (rs.next()) {
+                int id = rs.getInt("ID");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String sujetDeThese = rs.getString("sujetDeThese");
+
+                System.out.printf("ID: %d, 姓名: %s %s, 论文主题: %s%n", id, nom, prenom, sujetDeThese);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // 按导师查询学生列表
+    public static void getEtudiantsByEncadrant(int encadrantId) {
+        String querySQL = """
+                SELECT e.ID, p.nom, p.prenom, e.sujetDeThese 
+                FROM Etudiant e
+                JOIN Personne p ON e.ID = p.ID
+                WHERE e.encadrant = ?
+                """;
+
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(querySQL)) {
+
+            pstmt.setInt(1, encadrantId); // 设置导师 ID 参数
+            ResultSet rs = pstmt.executeQuery();
+
+            System.out.println("按导师查询的学生列表：");
+            while (rs.next()) {
+                int id = rs.getInt("ID");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String sujetDeThese = rs.getString("sujetDeThese");
+
+                System.out.printf("ID: %d, 姓名: %s %s, 论文主题: %s%n", id, nom, prenom, sujetDeThese);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }   
+    }
+    
     @Override
     public String toString() {
         return "Etudiant{" +
