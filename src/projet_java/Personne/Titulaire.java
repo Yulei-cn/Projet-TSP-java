@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Titulaire extends Personne {
     private Set<Discipline> disciplines;
@@ -91,15 +93,16 @@ public class Titulaire extends Personne {
     }
 
 
-
+/*
     
     // 按学科查询导师列表
-    public static void getTitulairesByDiscipline(int disciplineId) {
+    public static void getTitulairesByDisciplie(int disciplineId) {
         String querySQL = """
                 SELECT t.ID, p.nom, p.prenom, t.numBureau
                 FROM Titulaire t
                 JOIN Personne p ON t.ID = p.ID
-                WHERE t.discipline = ?;
+                JOIN Titulaire_Discipline d ON t.ID=d.ID
+                WHERE d.discipline = ?;
                 """;
 
         try (Connection conn = BDConnect.getConnection();
@@ -122,8 +125,70 @@ public class Titulaire extends Personne {
             e.printStackTrace();
         }
     }
+*/
+        public static List<String> getTitulairesByDisciplie(int disciplineId) {
+        String querySQL = """
+                SELECT p.ville
+                FROM Titulaire t
+                JOIN Personne p ON t.ID = p.ID
+                JOIN Titulaire_Discipline d ON t.ID=d.ID
+                WHERE d.discipline = ?;
+                """;
+        List<String> villes = new ArrayList<>();
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(querySQL)) {
+
+            pstmt.setInt(1, disciplineId); // 设置学科 ID 参数
+            ResultSet rs = pstmt.executeQuery();
+
+            System.out.println("按学科查询的导师列表：");
+            while (rs.next()) {
+                String ville = rs.getString("ville");
+                villes.add(ville);
+
+                System.out.printf("Ville: %s", ville);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return villes;
+    }
+
+     public static List<String> getTitulairesByBureau(int disciplineId) {
+        String querySQL = """
+                SELECT p.ville
+                FROM Titulaire t
+                JOIN Personne p ON t.ID = p.ID
+                JOIN Titulaire_Discipline d ON t.ID=d.ID
+                WHERE t.numBureau = ?;
+                """;
+        List<String> villes = new ArrayList<>();
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(querySQL)) {
+
+            pstmt.setInt(1, disciplineId); // 设置学科 ID 参数
+            ResultSet rs = pstmt.executeQuery();
+
+            System.out.println("按学科查询的导师列表：");
+            while (rs.next()) {
+                String ville = rs.getString("ville");
+                villes.add(ville);
+
+                System.out.printf("Ville: %s", ville);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return villes;
+    }
 
     
+
+
+
+
     @Override
     public String toString() {
         return "Titulaire{" +

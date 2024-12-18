@@ -14,10 +14,17 @@ public class BDConnect {
     public static Connection getConnection() {
         Connection connec = null;
         try {
-            // 使用 DriverManag
+            // 显式加载 PostgreSQL 驱动
+            Class.forName("org.postgresql.Driver");
+
+            // 使用 DriverManager 获取连接
             connec = DriverManager.getConnection(DB_URL, USER, PASSWORD);
             System.out.println("成功连接到数据库！");
+        } catch (ClassNotFoundException e) {
+            System.out.println("PostgreSQL 驱动未找到！");
+            e.printStackTrace();
         } catch (SQLException e) {
+            System.out.println("数据库连接失败！");
             e.printStackTrace();
         }
         return connec;

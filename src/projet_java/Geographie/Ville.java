@@ -61,6 +61,35 @@ public class Ville {
         return villes;
     }
 
+    
+ // 在 Ville 类中新增方法
+    public static Ville findByName(String name) {
+        String sql = "SELECT ville_nom, ville_latitude_deg, ville_longitude_deg FROM villes_france_free WHERE LOWER(ville_nom) = LOWER(?)";
+        Ville ville = null;
+
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String nom = rs.getString("ville_nom");
+                    double latitude = rs.getDouble("ville_latitude_deg");
+                    double longitude = rs.getDouble("ville_longitude_deg");
+                    ville = new Ville(nom, latitude, longitude);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (ville == null) {
+            System.out.println("未找到匹配的城市：" + name);
+        }
+
+        return ville;
+    }
+
+    
     @Override
     public String toString() {
         return "Ville{" +
@@ -68,5 +97,20 @@ public class Ville {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Ville city = (Ville) obj;
+        return Double.compare(city.latitude, latitude) == 0 &&
+               Double.compare(city.longitude, longitude) == 0 &&
+               nom.equalsIgnoreCase(city.nom);
+    }
+
+    @Override
+    public int hashCode() {
+        return nom.toLowerCase().hashCode();
     }
 }
