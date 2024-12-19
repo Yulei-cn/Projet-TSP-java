@@ -1,4 +1,4 @@
-```markdown
+
 # Projet : Système de gestion multifonctionnel
 
 ## Description
@@ -18,7 +18,7 @@ Ce projet simule un système de gestion intégrant :
 ```bash
 git clone https://github.com/username/Projet_TSP_Java.git
 cd Projet_TSP_Java
-```
+
 
 ### 2. Initialiser la base de données
 - Créer une base de données PostgreSQL nommée `projetSQL` :

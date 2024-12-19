@@ -102,6 +102,7 @@ public class Etudiant extends Personne {
           StringBuilder update = new StringBuilder("UPDATE ETUDIANT SET ");
     boolean hasFields = false;
 
+    // 拼接 SET 子句
     if (sujetDeThese != null) {
         update.append("sujetdethese = ? ,");
         hasFields = true;
@@ -119,34 +120,66 @@ public class Etudiant extends Personne {
         hasFields = true;
     }
 
+    // 删除最后一个逗号
     if (hasFields) {
-        update.deleteCharAt(update.length() - 1); // 删除最后一个逗号
+        update.deleteCharAt(update.length() - 1);
     } else {
-        System.out.println("没有需要更新的字段。");
+        System.out.println("没有需要更新的字段，更新操作已取消。");
         return;
     }
 
+    // 拼接 WHERE 子句
     update.append(" WHERE 1=1 ");
-    if (conpersonneId != null) update.append("AND ID = ? ");
-    if (consujetDeThese != null) update.append("AND sujetdethese ILIKE ? ");
-    if (condisciplineId != null) update.append("AND discipline = ? ");
-    if (conanneeDeThese != null) update.append("AND anneeDeThese = ? ");
-    if (conencadrantId != null) update.append("AND encadrant = ? ");
+    boolean hasConditions = false;
+
+    if (conpersonneId != null) {
+        update.append("AND ID = ? ");
+        hasConditions = true;
+    }
+    if (consujetDeThese != null) {
+        update.append("AND sujetdethese ILIKE ? ");
+        hasConditions = true;
+    }
+    if (condisciplineId != null) {
+        update.append("AND discipline = ? ");
+        hasConditions = true;
+    }
+    if (conanneeDeThese != null) {
+        update.append("AND anneeDeThese = ? ");
+        hasConditions = true;
+    }
+    if (conencadrantId != null) {
+        update.append("AND encadrant = ? ");
+        hasConditions = true;
+    }
+
+    // 如果没有条件
+    if (!hasConditions) {
+        System.out.println("没有条件，无法执行更新操作。");
+        return;
+    }
+
+    // 打印生成的 SQL 查询
+    System.out.println("生成的 SQL 查询: " + update);
 
     try (Connection conn = BDConnect.getConnection();
          PreparedStatement pstmt = conn.prepareStatement(update.toString())) {
 
         int paramIndex = 1;
+
+        // 设置 SET 子句参数
         if (sujetDeThese != null) pstmt.setString(paramIndex++, sujetDeThese);
         if (disciplineId != null) pstmt.setInt(paramIndex++, disciplineId);
         if (anneeDeThese != null) pstmt.setInt(paramIndex++, anneeDeThese);
         if (encadrantId != null) pstmt.setInt(paramIndex++, encadrantId);
 
+        // 设置 WHERE 子句参数
         if (conpersonneId != null) pstmt.setInt(paramIndex++, conpersonneId);
         if (consujetDeThese != null) pstmt.setString(paramIndex++, consujetDeThese);
         if (condisciplineId != null) pstmt.setInt(paramIndex++, condisciplineId);
         if (conanneeDeThese != null) pstmt.setInt(paramIndex++, conanneeDeThese);
         if (conencadrantId != null) pstmt.setInt(paramIndex++, conencadrantId);
+
 
             // 执行插入
             int rowsInserted = pstmt.executeUpdate();
