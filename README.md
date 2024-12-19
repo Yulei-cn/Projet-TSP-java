@@ -62,7 +62,7 @@ java -cp "bin;lib/postgresql-42.7.4.jar" projet_java.Main
 ## Structure du projet
 - **src/** : Code source du projet.
 - **lib/** : Bibliothèques tierces, comme le driver PostgreSQL.
-- **projet_java/Projet_TSP_JAVA.sql** : Script SQL pour initialiser la base de données.
+- **projet_java/Projet_TSP_JAVA.sql** : ![Script SQL pour initialiser la base de données.](uml.png)
 
 ## Contributions
 1. Forker le projet.

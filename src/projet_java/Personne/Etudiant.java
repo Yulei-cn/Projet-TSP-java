@@ -104,7 +104,7 @@ public class Etudiant extends Personne {
 
     // 拼接 SET 子句
     if (sujetDeThese != null) {
-        update.append("sujetdethese = ? ,");
+        update.append("sujetDeThese = ? ,");
         hasFields = true;
     }
     if (disciplineId != null) {
@@ -137,7 +137,7 @@ public class Etudiant extends Personne {
         hasConditions = true;
     }
     if (consujetDeThese != null) {
-        update.append("AND sujetdethese ILIKE ? ");
+        update.append("AND sujetDeThese ILIKE ? ");
         hasConditions = true;
     }
     if (condisciplineId != null) {
@@ -180,10 +180,11 @@ public class Etudiant extends Personne {
         if (conanneeDeThese != null) pstmt.setInt(paramIndex++, conanneeDeThese);
         if (conencadrantId != null) pstmt.setInt(paramIndex++, conencadrantId);
 
+        System.out.println("Etudiant ");
 
             // 执行插入
-            int rowsInserted = pstmt.executeUpdate();
-            if (rowsInserted > 0) {
+        int rowsInserted = pstmt.executeUpdate();
+        if (rowsInserted > 0) {
                 System.out.println("Etudiant 数据删除成功！");
             }
         } catch (SQLException e) {

@@ -334,7 +334,7 @@ public class Main {
                     System.out.println("无效选项，请重新输入。");
             }
         }*/
-        Etudiant.UpdateEtudiant(null,3,null,null,1,null,null,null,null);
+        Etudiant.UpdateEtudiant(null,3,null,null,2,null,null,null,null);
     }
 }
 
