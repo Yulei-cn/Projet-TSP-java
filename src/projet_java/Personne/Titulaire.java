@@ -184,7 +184,77 @@ public class Titulaire extends Personne {
         return villes;
     }
 
-    
+    public static void SupprimeTitulaire(Integer ID, Integer numbureau) {
+        // 插入数据的 SQL 语句
+
+
+
+
+        StringBuilder delete = new StringBuilder( "DELETE FROM Titulaire ");
+
+        delete.append("WHERE 1=1 ");
+		if (ID != null) delete.append("AND ID =  ? ");
+		if (numbureau != null) delete.append("AND numbureau =  ? ");
+
+
+        // 使用 BDConnect 获取连接并插入数据
+        try (Connection conn = BDConnect.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement(delete.toString())) {
+
+            // 设置占位符参数
+        int paramIndex = 1;
+		if (ID != null) pstmt.setInt(paramIndex++, ID);
+		if (numbureau != null) pstmt.setInt(paramIndex++, numbureau);
+
+
+
+            // 执行插入
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Etudiant 数据删除成功！");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+    public static void SupprimeTitulaire_Discipline(Integer discipline, Integer ID) {
+        // 插入数据的 SQL 语句
+
+
+
+
+        StringBuilder delete = new StringBuilder( "DELETE FROM Titulaire ");
+
+        delete.append("WHERE 1=1 ");
+		if (ID != null) delete.append("AND ID =  ? ");
+		if (discipline != null) delete.append("AND discipline_ID =  ? ");
+
+
+        // 使用 BDConnect 获取连接并插入数据
+        try (Connection conn = BDConnect.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement(delete.toString())) {
+
+            // 设置占位符参数
+        int paramIndex = 1;
+		if (ID != null) pstmt.setInt(paramIndex++, ID);
+		if (discipline != null) pstmt.setInt(paramIndex++, discipline);
+
+
+
+            // 执行插入
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Etudiant 数据删除成功！");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 

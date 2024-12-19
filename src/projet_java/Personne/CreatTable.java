@@ -1,4 +1,3 @@
-//CreatTable.java
 package projet_java.Personne;
 
 import java.sql.Connection;
@@ -38,35 +37,12 @@ public class CreatTable {
                 );
                 """;
 
-        String createTitulaire_DisciplineTable="""
-                CREATE TABLE Titulaire_Discipline(
+        String createTitulaireDisciplineTable = """
+                CREATE TABLE IF NOT EXISTS Titulaire_Discipline (
                     ID INT REFERENCES Titulaire(ID),
                     discipline_ID INT REFERENCES Discipline(ID),
                     PRIMARY KEY (ID, discipline_ID)
                 );
-            """;
-
-        String createTriggerFunction = """
-                CREATE OR REPLACE FUNCTION check_titulaire_discipline()
-                RETURNS TRIGGER AS $$
-                DECLARE
-                    discipline_count INT;
-                BEGIN
-                    SELECT COUNT(*) INTO discipline_count
-                    FROM Titulaire_Discipline
-                    WHERE ID = NEW.ID;
-
-                    IF discipline_count > 1 THEN 
-                        RAISE EXCEPTION 'A Titulaire cannot have more than 2 Disciplines.';
-                    END IF;
-
-                    RETURN NEW;
-                END;
-                $$ LANGUAGE plpgsql;
-                CREATE TRIGGER check_titulaire_discipline_trigger
-                BEFORE INSERT OR UPDATE ON Titulaire_Discipline
-                FOR EACH ROW
-                EXECUTE FUNCTION check_titulaire_discipline();
                 """;
 
         String createEtudiantTable = """
@@ -81,7 +57,9 @@ public class CreatTable {
 
         String createChercheurTable = """
                 CREATE TABLE IF NOT EXISTS Chercheur (
-                    ID INT PRIMARY KEY REFERENCES Titulaire(ID)
+                    ID INT REFERENCES Titulaire(ID),
+                    etudiant INT REFERENCES Etudiant(ID),
+                    PRIMARY KEY(ID,etudiant)
                 );
                 """;
 
@@ -92,11 +70,61 @@ public class CreatTable {
                 );
                 """;
 
-        // 验证触发器是否附加成功的 SQL
-        String validateTrigger = """
-                SELECT event_object_table, trigger_name
-                FROM information_schema.triggers
-                WHERE event_object_table = 'Titulaire';
+        // 限制导师只能辅导两门课程的触发器
+        String createTriggerFunction = """
+                CREATE OR REPLACE FUNCTION check_titulaire_discipline()
+                RETURNS TRIGGER AS $$
+                DECLARE
+                    discipline_count INT;
+                BEGIN
+                    SELECT COUNT(*) INTO discipline_count
+                    FROM Titulaire_Discipline
+                    WHERE ID = NEW.ID;
+
+                    IF discipline_count >= 2 THEN 
+                        RAISE EXCEPTION 'A Titulaire cannot have more than 2 Disciplines.';
+                    END IF;
+
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER check_titulaire_discipline_trigger
+                BEFORE INSERT OR UPDATE ON Titulaire_Discipline
+                FOR EACH ROW
+                EXECUTE FUNCTION check_titulaire_discipline();
+                """;
+
+        // 角色验证触发器，确保一个Personne只能属于一个角色
+        String createRoleValidationTrigger = """
+                CREATE OR REPLACE FUNCTION validate_unique_role()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    IF (NEW.ID IN (SELECT ID FROM Etudiant)) THEN
+                        RAISE EXCEPTION 'ID % already exists as an Etudiant', NEW.ID;
+                    ELSIF (NEW.ID IN (SELECT ID FROM Titulaire)) THEN
+                        RAISE EXCEPTION 'ID % already exists as a Titulaire', NEW.ID;
+                    ELSIF (NEW.ID IN (SELECT ID FROM Chercheur)) THEN
+                        RAISE EXCEPTION 'ID % already exists as a Chercheur', NEW.ID;
+                    END IF;
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER unique_role_trigger
+                BEFORE INSERT ON Etudiant
+                FOR EACH ROW
+                EXECUTE FUNCTION validate_unique_role();
+
+                CREATE TRIGGER unique_role_trigger_titulaire
+                BEFORE INSERT ON Titulaire
+                FOR EACH ROW
+                EXECUTE FUNCTION validate_unique_role();
+
+                CREATE TRIGGER unique_role_trigger_chercheur
+                BEFORE INSERT ON Chercheur
+                FOR EACH ROW
+                EXECUTE FUNCTION validate_unique_role();
                 """;
 
         // 执行建表和触发器创建
@@ -111,22 +139,14 @@ public class CreatTable {
                 stmt.execute(createPersonneTable);
                 stmt.execute(createDisciplineTable);
                 stmt.execute(createTitulaireTable);
-                stmt.execute(createEtudiantTable); 
+                stmt.execute(createEtudiantTable);
                 stmt.execute(createChercheurTable);
                 stmt.execute(createMCFTable);
-                 stmt.execute(createTitulaire_DisciplineTable);
-                // 创建触发器和触发器函数
+                stmt.execute(createTitulaireDisciplineTable);
+
+                // 创建触发器和验证规则
                 stmt.execute(createTriggerFunction);
-
-
-                // 验证触发器是否附加成功
-                try (ResultSet rs = stmt.executeQuery(validateTrigger)) {
-                    while (rs.next()) {
-                        String tableName = rs.getString("event_object_table");
-                        String triggerName = rs.getString("trigger_name");
-                        System.out.printf("触发器 %s 已附加到表 %s%n", triggerName, tableName);
-                    }
-                }
+                stmt.execute(createRoleValidationTrigger);
 
                 // 提交事务
                 conn.commit();

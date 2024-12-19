@@ -62,6 +62,89 @@ public class Etudiant extends Personne {
         }
     }
 
+    public static void SupprimeEtudiant(Integer personneId, String sujetDeThese, Integer disciplineId, Integer anneeDeThese, Integer encadrantId) {
+        // 插入数据的 SQL 语句
+        StringBuilder delete = new StringBuilder( "DELETE FROM ETUDIANT ");
+
+        delete.append("WHERE 1=1 ");
+		if (personneId != null) delete.append("AND ID =  ? ");
+		if (sujetDeThese != null) delete.append("AND sujetdethese ILIKE  ? ");
+		if (disciplineId != null) delete.append("AND discipline = ? ");
+        if (anneeDeThese != null) delete.append("AND anneeDeThese = ? ");
+		if (encadrantId != null) delete.append("AND encadrant =  ? ");
+
+        // 使用 BDConnect 获取连接并插入数据
+        try (Connection conn = BDConnect.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement(delete.toString())) {
+
+            // 设置占位符参数
+        int paramIndex = 1;
+		if (personneId != null) pstmt.setInt(paramIndex++, personneId);
+		if (sujetDeThese != null) pstmt.setString(paramIndex++, sujetDeThese);
+		if (disciplineId != null) pstmt.setInt(paramIndex++, disciplineId);
+		if (anneeDeThese != null) pstmt.setInt(paramIndex++, anneeDeThese);
+		if (encadrantId != null) pstmt.setInt(paramIndex++, encadrantId);
+
+
+            // 执行插入
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Etudiant 数据删除成功！");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void UpdateEtudiant(String sujetDeThese, Integer disciplineId, Integer anneeDeThese, Integer encadrantId,Integer conpersonneId, String consujetDeThese, Integer condisciplineId, Integer conanneeDeThese, Integer conencadrantId) {
+        // 插入数据的 SQL 语句
+        StringBuilder update = new StringBuilder( "UPDATE ETUDIANT ");
+
+
+		if (sujetDeThese != null) update.append(" sujetdethese =  ? ,");
+		if (disciplineId != null) update.append(" discipline = ? ,");
+        if (anneeDeThese != null) update.append(" anneeDeThese = ? ,");
+		if (encadrantId != null) update.append(" encadrant =  ? ,");
+        update.deleteCharAt(update.length() - 1);
+        update.append("WHERE 1=1 ");
+        if (conpersonneId != null) update.append("AND ID =  ? ");
+		if (consujetDeThese != null) update.append("AND sujetdethese ILIKE  ? ");
+		if (condisciplineId != null) update.append("AND discipline = ? ");
+        if (conanneeDeThese != null) update.append("AND anneeDeThese = ? ");
+		if (conencadrantId != null) update.append("AND encadrant =  ? ");
+        // 使用 BDConnect 获取连接并插入数据
+        try (Connection conn = BDConnect.getConnection();
+		PreparedStatement pstmt = conn.prepareStatement(update.toString())) {
+
+            // 设置占位符参数
+        int paramIndex = 1;
+
+		if (sujetDeThese != null) pstmt.setString(paramIndex++, sujetDeThese);
+		if (disciplineId != null) pstmt.setInt(paramIndex++, disciplineId);
+		if (anneeDeThese != null) pstmt.setInt(paramIndex++, anneeDeThese);
+		if (encadrantId != null) pstmt.setInt(paramIndex++, encadrantId);
+        if (conpersonneId != null) pstmt.setInt(paramIndex++, conpersonneId);
+		if (consujetDeThese != null) pstmt.setString(paramIndex++, consujetDeThese);
+		if (condisciplineId != null) pstmt.setInt(paramIndex++, condisciplineId);
+		if (conanneeDeThese != null) pstmt.setInt(paramIndex++, conanneeDeThese);
+		if (conencadrantId != null) pstmt.setInt(paramIndex++, conencadrantId);
+
+
+            // 执行插入
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Etudiant 数据删除成功！");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
     // 按学科查询学生列表
     public static void getEtudiantsByDiscipline(int disciplineId) {
         String querySQL = """
