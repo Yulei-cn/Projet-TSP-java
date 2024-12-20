@@ -9,88 +9,122 @@ import projet_java.Personne.*;
 
 public class SupprimeMenu {
 
-    public static void Supprime(Scanner scanner) {
-        System.out.println("请选择删除操作：");
-        System.out.println("1. 删除学生数据");
-        System.out.println("2. 删除人员数据");
-        System.out.println("3. 删除研究员数据");
-        System.out.println("4. 删除MCF数据");
-        System.out.println("5. 删除导师数据");
-        System.out.println("6. 删除导师学科数据");
-        System.out.println("7. 返回上一菜单");
-        System.out.print("请选择一个选项 (1-7): ");
+	public static void Supprime(Scanner scanner) {
+	    System.out.println("Veuillez choisir une opération de suppression :");
+	    System.out.println("1. Supprimer les données des étudiants");
+	    System.out.println("2. Supprimer les données des personnes");
+	    System.out.println("3. Supprimer les données des chercheurs");
+	    System.out.println("4. Supprimer les données des MCF");
+	    System.out.println("5. Supprimer les données des titulaires");
+	    System.out.println("6. Supprimer les données des disciplines des titulaires");
+	    System.out.println("7. Retour au menu précédent");
+	    System.out.print("Veuillez choisir une option (1-7) : ");
 
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // 清除换行符
+	    int choice = scanner.nextInt();
+	    scanner.nextLine(); 
+	    System.out.println("Cette opération est irréversible. Veuillez confirmer en entrant 'CONFIRM' : ");
+	    String confirmation = scanner.nextLine().trim();
+	    if (!"CONFIRM".equalsIgnoreCase(confirmation)) {
+	        System.out.println("Suppression annulée.");
+	        return;
+	    }
 
-        switch (choice) {
-            case 1:
-                System.out.print("请输入学生ID (可选): ");
-                Integer etudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入论文题目 (可选): ");
-                String sujetDeThese = parseNullableInput(scanner.nextLine().trim(), String.class);
-                System.out.print("请输入学科编号 (可选): ");
-                Integer disciplineId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入论文年份 (可选): ");
-                Integer anneeDeThese = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入导师ID (可选): ");
-                Integer encadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	    try {
+	        switch (choice) {
+	            case 1:
+	                System.out.print("Veuillez entrer l'ID de l'étudiant (optionnel): ");
+	                Integer etudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer le sujet de thèse (optionnel) : ");
+	                String sujetDeThese = parseNullableInput(scanner.nextLine().trim(), String.class);
+	                System.out.print("Veuillez entrer l'ID de la discipline (optionnel) : ");
+	                Integer disciplineId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer l'année de thèse (optionnel): ");
+	                Integer anneeDeThese = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer l'ID de l'encadrant (optionnel): ");
+	                Integer encadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                Etudiant.SupprimeEtudiant(etudiantID, sujetDeThese, disciplineId, anneeDeThese, encadrantId);
-                break;
-            case 2:
-                System.out.print("请输入人员ID (可选): ");
-                Integer personneID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入姓名 (可选): ");
-                String nom = parseNullableInput(scanner.nextLine().trim(), String.class);
-                System.out.print("请输入姓氏 (可选): ");
-                String prenom = parseNullableInput(scanner.nextLine().trim(), String.class);
-                System.out.print("请输入年龄 (可选): ");
-                Integer age = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入城市 (可选): ");
-                String ville = parseNullableInput(scanner.nextLine().trim(), String.class);
+	                Etudiant.SupprimeEtudiant(etudiantID, sujetDeThese, disciplineId, anneeDeThese, encadrantId);
+	                break;
+	            case 2:
+	                System.out.print("Veuillez entrer l'ID de la personne (optionnel): ");
+	                Integer personneID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer le nom (optionnel): ");
+	                String nom = parseNullableInput(scanner.nextLine().trim(), String.class);
+	                System.out.print("Veuillez entrer le prénom (optionnel): ");
+	                String prenom = parseNullableInput(scanner.nextLine().trim(), String.class);
+	                System.out.print("Veuillez entrer l'âge (optionnel): ");
+	                Integer age = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer la ville (optionnel): ");
+	                String ville = parseNullableInput(scanner.nextLine().trim(), String.class);
+					if (Personne.SupprimePersonne(personneID, nom, prenom, age, ville)!=1){
+						 System.out.println("Erreur : 不可以删除");
+					};
 
-                Personne.SupprimePersonne(personneID, nom, prenom, age, ville);
-                break;
-            case 3:
-                System.out.print("请输入研究员ID (可选): ");
-                Integer chercheurID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入学生ID (可选): ");
-                Integer chercheurEtudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	    /* try {
+	                    Personne.SupprimePersonne(personneID, nom, prenom, age, ville);
+	                } catch (Exception e) {
+	                    System.out.println("Erreur : La suppression a échoué en raison d'une contrainte de clé étrangère.");
+	                    System.out.println("Voulez-vous effectuer une suppression en cascade ? (o/n) : ");
+	                    String cascadeChoice = scanner.nextLine().trim();
+	                    if ("o".equalsIgnoreCase(cascadeChoice)) {
+	                        performCascadeDelete(personneID, scanner);
+	                    } else {
+	                        System.out.println("Suppression annulée.");
+	                    }
+	                }*/
+	                break;
+	            case 3:
+	                System.out.print("Veuillez entrer l'ID du MCF (optionnel) : ");
+	                Integer chercheurID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer l'ID de l'étudiant (optionnel) : ");
+	                Integer chercheurEtudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                Chercheur.SupprimeChercheur(chercheurID, chercheurEtudiantID);
-                break;
-            case 4:
-                System.out.print("请输入MCF ID (可选): ");
-                Integer mcfID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入学生ID (可选): ");
-                Integer mcfEtudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                Chercheur.SupprimeChercheur(chercheurID, chercheurEtudiantID);
+	                break;
+	            case 4:
+	                System.out.print("Veuillez entrer l'ID du titulaire (optionnel) : ");
+	                Integer mcfID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer le numéro du bureau (optionnel) : ");
+	                Integer mcfEtudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                MCF.SupprimeMCF(mcfID, mcfEtudiantID);
-                break;
-            case 5:
-                System.out.print("请输入导师ID (可选): ");
-                Integer titulaireID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入办公室编号 (可选): ");
-                Integer titulaireNumbureau = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                MCF.SupprimeMCF(mcfID, mcfEtudiantID);
+	                break;
+	            case 5:
+	                System.out.print("Veuillez entrer l'ID du titulaire (optionnel): ");
+	                Integer titulaireID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer le numéro du bureau (optionnel): ");
+	                Integer titulaireNumbureau = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                Titulaire.SupprimeTitulaire(titulaireID, titulaireNumbureau);
-                break;
-            case 6:
-                System.out.print("请输入导师学科ID (可选): ");
-                Integer disciplineID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-                System.out.print("请输入学科编号 (可选): ");
-                Integer titulaireDisciplineID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                Titulaire.SupprimeTitulaire(titulaireID, titulaireNumbureau);
+	                break;
+	            case 6:
+	                System.out.print("Veuillez entrer l'ID de la discipline du titulaire (optionnel) : ");
+	                Integer disciplineID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
+	                System.out.print("Veuillez entrer l'ID de la discipline (optionnel) : ");
+	                Integer titulaireDisciplineID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                Titulaire.SupprimeTitulaire_Discipline(disciplineID, titulaireDisciplineID);
-                break;
-            case 7:
-                System.out.println("返回上一菜单...");
-                break;
-            default:
-                System.out.println("无效的选择！");
-        }
-    }
+	                Titulaire.SupprimeTitulaire_Discipline(disciplineID, titulaireDisciplineID);
+	                break;
+	            case 7:
+	                System.out.println("Retour au menu précédent...");
+	                break;
+	            default:
+	                System.out.println("Choix invalide !");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	private static void performCascadeDelete(Integer personneID, Scanner scanner) {
+	    System.out.println("Exécution de la suppression en cascade...");
+	    // Implémentez ici la logique pour supprimer toutes les données associées à cette personne
+	    // Exemple :
+	    // 1. Supprimez les enregistrements des tables dépendantes
+	    // 2. Ensuite, supprimez les données dans la table "Personne"
+	    System.out.println("Suppression en cascade terminée pour ID : " + personneID);
+	}
+
 
     @SuppressWarnings("unchecked")
     private static <T> T parseNullableInput(String input, Class<T> type) {
@@ -105,7 +139,7 @@ public class SupprimeMenu {
                 return (T) input;
             }
         } catch (Exception e) {
-            System.out.println("无效的输入：" + input + "，将被忽略。");
+            System.out.println("Entrée invalide : " + input + ", elle sera ignorée.");
         }
 
         return null;

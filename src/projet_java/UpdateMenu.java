@@ -10,18 +10,19 @@ import projet_java.Personne.*;
 public class UpdateMenu {
 
     public static void executeUpdateMenu(Scanner scanner) {
-        System.out.println("请选择更新操作：");
-        System.out.println("1. 更新学生数据");
-        System.out.println("2. 更新人员数据");
-        System.out.println("3. 更新研究员数据");
-        System.out.println("4. 更新MCF数据");
-        System.out.println("5. 更新导师数据");
-        System.out.println("6. 更新导师学科数据");
-        System.out.println("7. 返回上一菜单");
-        System.out.print("请选择一个选项 (1-7): ");
+        System.out.println("Veuillez choisir une opération de mise à jour :");
+        System.out.println("1. Mettre à jour les données des étudiants");
+        System.out.println("2. Mettre à jour les données des personnes");
+        System.out.println("3. Mettre à jour les données des chercheurs");
+        System.out.println("4. Mettre à jour les données des MCF");
+        System.out.println("5. Mettre à jour les données des titulaires");
+        System.out.println("6. Mettre à jour les données des disciplines des titulaires");
+        System.out.println("7. Retour au menu précédent");
+        System.out.print("Veuillez choisir une option (1-7) : ");
+
 
         int choice = scanner.nextInt();
-        scanner.nextLine(); // 清除换行符
+        scanner.nextLine(); 
 
         switch (choice) {
             case 1:
@@ -43,47 +44,48 @@ public class UpdateMenu {
                 updateTitulaireDiscipline(scanner);
                 break;
             case 7:
-                System.out.println("返回上一菜单...");
+                System.out.println("Retour au menu précédent...");
                 break;
             default:
-                System.out.println("无效的选择！");
+                System.out.println("Choix invalide !");
         }
     }
 
     private static void updateEtudiant(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
+        System.out.println("Veuillez entrer les conditions de mise à jour et les nouvelles valeurs :");
 
-        System.out.print("现有的学生ID (可选): ");
+        System.out.print("ID actuel de l'étudiant (optionnel) : ");
         Integer conpersonneId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-        System.out.print("现有的论文题目 (可选): ");
+        System.out.print("Sujet de thèse actuel (optionnel) : ");
         String consujetDeThese = parseNullableInput(scanner.nextLine().trim(), String.class);
 
-        System.out.print("现有的学科编号 (可选): ");
+        System.out.print("ID de la discipline actuelle (optionnel) : ");
         Integer condisciplineId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-        System.out.print("现有的论文年份 (可选): ");
+        System.out.print("Année de thèse actuelle (optionnel) : ");
         Integer conanneeDeThese = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-        System.out.print("现有的导师ID (可选): ");
+        System.out.print("ID de l'encadrant actuel (optionnel) : ");
         Integer conencadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-        System.out.print("新论文题目 (可选): ");
+        System.out.print("Nouveau sujet de thèse (optionnel) : ");
         String sujetDeThese = parseNullableInput(scanner.nextLine().trim(), String.class);
 
-        System.out.print("新学科编号 (可选): ");
+        System.out.print("Nouvel ID de la discipline (optionnel) : ");
         Integer disciplineId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-        System.out.print("新论文年份 (可选): ");
+        System.out.print("Nouvelle année de thèse (optionnel) : ");
         Integer anneeDeThese = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-        System.out.print("新导师ID (可选): ");
+        System.out.print("Nouvel ID de l'encadrant (optionnel) : ");
         Integer encadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
         Etudiant.UpdateEtudiant(sujetDeThese, disciplineId, anneeDeThese, encadrantId, conpersonneId, consujetDeThese, condisciplineId, conanneeDeThese, conencadrantId);
     }
 
-    // 其他更新方法和 `parseNullableInput` 保持不变
+    // Autres méthodes de mise à jour et `parseNullableInput` restent inchangées
+    @SuppressWarnings("unchecked")
     private static <T> T parseNullableInput(String input, Class<T> type) {
         if (input.isEmpty()) {
             return null;
@@ -91,20 +93,20 @@ public class UpdateMenu {
 
         try {
             if (type == Integer.class) {
-                return (T) Integer.valueOf(input);
+                return type.cast(Integer.valueOf(input));  // 安全的类型转换
             } else if (type == String.class) {
-                return (T) input;
+                return type.cast(input);  // 安全的类型转换
             }
         } catch (Exception e) {
-            System.out.println("无效的输入：" + input + "，将被忽略。");
+            System.out.println("Entrée invalide : " + input + ", elle sera ignorée.");
         }
 
         return null;
     }
 
-    private static void updatePersonne(Scanner scanner) { /* 保留原有逻辑 */ }
-    private static void updateChercheur(Scanner scanner) { /* 保留原有逻辑 */ }
-    private static void updateMCF(Scanner scanner) { /* 保留原有逻辑 */ }
-    private static void updateTitulaire(Scanner scanner) { /* 保留原有逻辑 */ }
-    private static void updateTitulaireDiscipline(Scanner scanner) { /* 保留原有逻辑 */ }
+    private static void updatePersonne(Scanner scanner) { /* Logique existante conservée */ }
+    private static void updateChercheur(Scanner scanner) { /* Logique existante conservée */ }
+    private static void updateMCF(Scanner scanner) { /* Logique existante conservée */ }
+    private static void updateTitulaire(Scanner scanner) { /* Logique existante conservée */ }
+    private static void updateTitulaireDiscipline(Scanner scanner) { /* Logique existante conservée */ }
 }

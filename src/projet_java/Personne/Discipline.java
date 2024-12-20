@@ -12,7 +12,7 @@ public enum Discipline {
     DROIT,
     SCIENCESSOCIALES;
 
-    // 将所有枚举值插入数据库
+    // 将所有枚举值插入数据库 Insérer toutes les valeurs de l'énumération dans la base de données
     public static void insertAllDisciplines() {
         String insertSQL = "INSERT INTO Discipline (id, name) VALUES (?, ?) ON CONFLICT (id) DO NOTHING";
 
@@ -26,7 +26,6 @@ public enum Discipline {
             }
             System.out.println("所有 Discipline 数据插入成功！");
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

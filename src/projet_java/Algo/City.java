@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 public class City {
-    private String name;        // 城市名称
-    private double latitude;    // 纬度
-    private double longitude;   // 经度
+    private String name;        // Nom de la ville
+    private double latitude;    // Latitude
+    private double longitude;   // Longitude
 
-    // 构造函数
+ // Constructeur
     public City(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
@@ -31,14 +31,14 @@ public class City {
         return longitude;
     }
 
-    // 计算两个城市之间的欧几里得距离
+ // Calculer la distance euclidienne entre deux villes
     public static double calculateDistance(City c1, City c2) {
         double xDiff = c1.getLongitude() - c2.getLongitude();
         double yDiff = c1.getLatitude() - c2.getLatitude();
         return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
     }
 
-    // 构建距离矩阵（存储城市之间的距离）
+ // Construire une matrice de distances (distances entre les villes)
     public static Map<String, Map<String, Double>> buildDistanceMatrix(List<Ville> villes) {
         Map<String, Map<String, Double>> distanceMatrix = new HashMap<>();
 
@@ -55,7 +55,7 @@ public class City {
 
             distanceMatrix.put(city1.getName(), distances);
         }
-        System.out.println("距离矩阵已成功构建！");
+        System.out.println("La matrice de distances a été construite avec succès !");
         return distanceMatrix;
     }
 

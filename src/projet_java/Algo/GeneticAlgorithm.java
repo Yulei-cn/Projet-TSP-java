@@ -9,12 +9,12 @@ import java.nio.file.Paths;
 
 public class GeneticAlgorithm {
 
-    // 初始化种群
+	// Initialisation de la population
     public Population initPopulation(List<City> cities, int sizepop) {
         return new Population(cities, sizepop);
     }
 
-    // 根据适应度随机选择两个父路径
+ // Sélection aléatoire de deux parents selon leur aptitude
     public Solution[] randomSelection(Population population) {
         List<Solution> solutions = population.getSolutions();
         Solution parent1 = solutions.get((int) (Math.random() * solutions.size()));
@@ -22,7 +22,7 @@ public class GeneticAlgorithm {
         return new Solution[]{parent1, parent2};
     }
 
-    // 交叉操作：简单交换一部分路径
+ // Opération de croisement : échange simple d'une partie du chemin
     public Solution crossover(Solution parent1, Solution parent2) {
         List<City> path1 = parent1.getPath();
         List<City> path2 = parent2.getPath();
@@ -37,7 +37,7 @@ public class GeneticAlgorithm {
         return new Solution(childPath, childPath.get(0));
     }
 
-    // 变异操作：随机交换路径中的两个城市
+ // Opération de mutation : échange aléatoire de deux villes dans le chemin
     public void mutate(Solution solution, double probmutate) {
         if (Math.random() <= probmutate) {
             List<City> path = solution.getPath();
@@ -47,7 +47,7 @@ public class GeneticAlgorithm {
         }
     }
 
-    // 精英保留：保留部分最优个体
+ // Élitisme : conservation des meilleurs individus
     public void elitism(Population newPopulation, Population oldPopulation, double rateelite) {
         List<Solution> allSolutions = new ArrayList<>(newPopulation.getSolutions());
         allSolutions.addAll(oldPopulation.getSolutions());
@@ -58,20 +58,21 @@ public class GeneticAlgorithm {
         newPopulation.getSolutions().addAll(allSolutions.subList(0, eliteCount));
     }
     
-    public void saveResultsToFile(Solution bestSolution, String directoryPath, String fileName) {
-        String filePath = Paths.get(directoryPath, fileName).toString(); // 组合完整路径
+ // Sauvegarder les résultats dans un fichier
+    public void saveResults(Solution bestSolution, String directoryPath, String fileName) {
+        String filePath = Paths.get(directoryPath, fileName).toString(); // Combinaison du chemin complet
 
         try (FileWriter writer = new FileWriter(filePath)) {
-            writer.write("最终最优路径：\n");
+            writer.write("Chemin optimal final :\n");
             writer.write(bestSolution.toString() + "\n");
-            System.out.println("结果已成功保存到文件：" + filePath);
+            System.out.println("Résultats enregistrés" + filePath);
         } catch (IOException e) {
-            System.out.println("写入文件时发生错误！");
+            System.out.println("Erreur！");
             e.printStackTrace();
         }
     }
 
- // 遗传算法主方法
+ // Méthode principale de l'algorithme génétique
     public Solution solveTSP(List<City> cities, int sizepop, double probmutate, double rateelite, 
                             int maxIterations, String saveDirectory, String fileName) {
         Population population = initPopulation(cities, sizepop);
@@ -97,19 +98,19 @@ public class GeneticAlgorithm {
 
             Solution currentBestSolution = population.getBestSolution();
 
-            // 如果当前最优解没有变化，提前终止
+         // Si la meilleure solution actuelle ne change pas, terminer plus tôt
             if (previousBestSolution != null && currentBestSolution.equals(previousBestSolution)) {
-                System.out.println("算法已收敛，提前结束。");
+                System.out.println("L'algorithme a convergé, fin anticipée.");
                 break;
             }
             previousBestSolution = currentBestSolution;
         }
 
-        // 获取最终最优解
+     // Obtenir la meilleure solution finale
         Solution bestSolution = population.getBestSolution();
 
-        // 保存结果到文件
-        saveResultsToFile(bestSolution, saveDirectory, fileName);
+        // Sauvegarder les résultats dans un fichier
+        saveResults(bestSolution, saveDirectory, fileName);
 
         return bestSolution;
     }

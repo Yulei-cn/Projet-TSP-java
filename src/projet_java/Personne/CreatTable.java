@@ -6,12 +6,12 @@ import java.sql.Statement;
 
 public class CreatTable {
     public static void Creat() {
-        // 数据库连接参数
-        String url = "jdbc:postgresql://localhost:5432/projetSQL"; // 数据库URL
-        String user = "postgres"; // 用户名
-        String password = "zhu"; // 密码
 
-        // 建表SQL语句
+        String url = "jdbc:postgresql://localhost:5432/projetSQL"; 
+        String user = "postgres"; 
+        String password = "zhu"; 
+
+
         String createPersonneTable = """
                 CREATE TABLE IF NOT EXISTS Personne (
                     ID SERIAL PRIMARY KEY,
@@ -69,7 +69,7 @@ public class CreatTable {
                 );
                 """;
 
-        // 限制导师只能辅导两门课程的触发器
+    
         String createTriggerFunction = """
                 CREATE OR REPLACE FUNCTION check_titulaire_discipline()
                 RETURNS TRIGGER AS $$
@@ -94,7 +94,7 @@ public class CreatTable {
                 EXECUTE FUNCTION check_titulaire_discipline();
                 """;
 
-        // 角色验证触发器，确保一个Personne只能属于一个角色
+
         String createRoleValidationTrigger = """
 				CREATE OR REPLACE FUNCTION validate_unique_role()
 				RETURNS TRIGGER AS $$
@@ -132,21 +132,21 @@ public class CreatTable {
                 EXECUTE FUNCTION validate_unique_role();
                 """;
 
-        // 插入 MCF 时自动生成 Titulaire 和 Personne
+
         String createAutoInsertTriggerForMCF = """
                 CREATE OR REPLACE FUNCTION auto_insert_titulaire_for_mcf()
                 RETURNS TRIGGER AS $$
                 BEGIN
-                    -- 检查 Personne 是否存在
+                    -- 检查 Personne 是否存在Vérifier si la personne existe
                     IF NOT EXISTS (SELECT 1 FROM Personne WHERE ID = NEW.ID) THEN
                         INSERT INTO Personne (ID, nom, prenom, age, ville)
                         VALUES (NEW.ID, '默认名字', '默认姓氏', 30, '默认城市');
                     END IF;
 
-                    -- 检查 Titulaire 是否存在
+                    -- 检查 Titulaire 是否存在Vérifier si le titulaire existe
                     IF NOT EXISTS (SELECT 1 FROM Titulaire WHERE ID = NEW.ID) THEN
                         INSERT INTO Titulaire (ID, numBureau)
-                        VALUES (NEW.ID, 101); -- 默认办公室编号
+                        VALUES (NEW.ID, 101); -- 默认办公室编号Numéro de bureau par défaut
                     END IF;
 
                     RETURN NEW;
@@ -159,21 +159,21 @@ public class CreatTable {
                 EXECUTE FUNCTION auto_insert_titulaire_for_mcf();
                 """;
 
-        // 插入 Chercheur 时自动生成 Titulaire 和 Personne
+        // 插入 Chercheur 时自动生成 Titulaire 和 Personne Lors de l'insertion d'un Chercheur, générer automatiquement un Titulaire et une Personne
         String createAutoInsertTriggerForChercheur = """
                 CREATE OR REPLACE FUNCTION auto_insert_titulaire_for_chercheur()
                 RETURNS TRIGGER AS $$
                 BEGIN
-                    -- 检查 Personne 是否存在
+                    -- 检查 Personne 是否存在Vérifier si la personne existe
                     IF NOT EXISTS (SELECT 1 FROM Personne WHERE ID = NEW.ID) THEN
                         INSERT INTO Personne (ID, nom, prenom, age, ville)
                         VALUES (NEW.ID, '默认名字', '默认姓氏', 30, '默认城市');
                     END IF;
 
-                    -- 检查 Titulaire 是否存在
+                    -- 检查 Titulaire 是否存在Vérifier si le titulaire existe
                     IF NOT EXISTS (SELECT 1 FROM Titulaire WHERE ID = NEW.ID) THEN
                         INSERT INTO Titulaire (ID, numBureau)
-                        VALUES (NEW.ID, 102); -- 默认办公室编号
+                        VALUES (NEW.ID, 102); -- 默认办公室编号Numéro de bureau par défaut
                     END IF;
 
                     RETURN NEW;
@@ -186,15 +186,15 @@ public class CreatTable {
                 EXECUTE FUNCTION auto_insert_titulaire_for_chercheur();
                 """;
 
-        // 执行建表和触发器创建
+        // 执行建表和触发器创建 Exécution de la création des tables et des déclencheurs
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement()) {
 
-            // 开启事务
+            // 开启事务Démarrer une transaction
             conn.setAutoCommit(false);
 
             try {
-                // 创建表
+                // 创建表Créer les tables
                 stmt.execute(createPersonneTable);
                 stmt.execute(createDisciplineTable);
                 stmt.execute(createTitulaireTable);
@@ -203,26 +203,24 @@ public class CreatTable {
                 stmt.execute(createMCFTable);
                 stmt.execute(createTitulaireDisciplineTable);
 
-                // 创建触发器和验证规则
                 stmt.execute(createTriggerFunction);
                 stmt.execute(createRoleValidationTrigger);
                 stmt.execute(createAutoInsertTriggerForMCF);
                 stmt.execute(createAutoInsertTriggerForChercheur);
 
-                // 提交事务
+                // 提交事务Valider la transaction
                 conn.commit();
                 System.out.println("所有表和触发器已成功创建！");
             } catch (Exception e) {
-                // 如果发生错误，回滚事务
+                // 如果发生错误，回滚事务En cas d'erreur, annuler la transaction
                 conn.rollback();
                 throw e;
             } finally {
-                // 恢复自动提交
+                // 恢复自动提交Restaurer l'auto-commit
                 conn.setAutoCommit(true);
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

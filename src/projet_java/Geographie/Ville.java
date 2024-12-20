@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Ville {
-    private String nom;      // 城市名称
-    private double latitude; // 纬度
-    private double longitude; // 经度
+    private String nom;      // Nom de la ville
+    private double latitude; // Latitude
+    private double longitude; // Longitude
 
-    // 构造函数
+    // Constructeur
     public Ville(String nom, double latitude, double longitude) {
         this.nom = nom;
         this.latitude = latitude;
@@ -34,7 +34,7 @@ public class Ville {
         return longitude;
     }
 
-    // 从数据库加载所有城市信息
+    // Charger toutes les informations des villes depuis la base de données
     public static List<Ville> loadAllVilles() {
         List<Ville> villes = new ArrayList<>();
         String sql = "SELECT ville_nom, ville_latitude_deg, ville_longitude_deg FROM villes_france_free";
@@ -43,7 +43,7 @@ public class Ville {
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
-            // 遍历结果集
+            // Parcourir le résultat
             while (rs.next()) {
                 String nom = rs.getString("ville_nom");
                 double latitude = rs.getDouble("ville_latitude_deg");
@@ -53,7 +53,7 @@ public class Ville {
                 villes.add(ville);
             }
 
-            System.out.println("成功加载城市列表，共 " + villes.size() + " 个城市。");
+            System.out.println("Liste des villes chargée avec succès, total : " + villes.size() + " villes.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -61,8 +61,7 @@ public class Ville {
         return villes;
     }
 
-    
- // 在 Ville 类中新增方法
+    // Nouvelle méthode dans la classe Ville
     public static Ville findByName(String name) {
         String sql = "SELECT ville_nom, ville_latitude_deg, ville_longitude_deg FROM villes_france_free WHERE LOWER(ville_nom) = LOWER(?)";
         Ville ville = null;
@@ -83,13 +82,12 @@ public class Ville {
         }
 
         if (ville == null) {
-            System.out.println("未找到匹配的城市：" + name);
+            System.out.println("Aucune ville correspondante trouvée : " + name);
         }
 
         return ville;
     }
 
-    
     @Override
     public String toString() {
         return "Ville{" +
