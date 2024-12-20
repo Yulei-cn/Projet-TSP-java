@@ -93,39 +93,6 @@ public class Titulaire extends Personne {
     }
 
 
-/*
-    
-    // 按学科查询导师列表
-    public static void getTitulairesByDisciplie(int disciplineId) {
-        String querySQL = """
-                SELECT t.ID, p.nom, p.prenom, t.numBureau
-                FROM Titulaire t
-                JOIN Personne p ON t.ID = p.ID
-                JOIN Titulaire_Discipline d ON t.ID=d.ID
-                WHERE d.discipline = ?;
-                """;
-
-        try (Connection conn = BDConnect.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(querySQL)) {
-
-            pstmt.setInt(1, disciplineId); // 设置学科 ID 参数
-            ResultSet rs = pstmt.executeQuery();
-
-            System.out.println("按学科查询的导师列表：");
-            while (rs.next()) {
-                int id = rs.getInt("ID");
-                String nom = rs.getString("nom");
-                String prenom = rs.getString("prenom");
-                int numBureau = rs.getInt("numBureau");
-
-                System.out.printf("ID: %d, 姓名: %s %s, 办公室编号: %d%n", id, nom, prenom, numBureau);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-*/
         public static List<String> getTitulairesByDisciplie(int disciplineId) {
         String querySQL = """
                 SELECT p.ville
@@ -186,10 +153,6 @@ public class Titulaire extends Personne {
 
     public static void SupprimeTitulaire(Integer ID, Integer numbureau) {
         // 插入数据的 SQL 语句
-
-
-
-
         StringBuilder delete = new StringBuilder( "DELETE FROM Titulaire ");
 
         delete.append("WHERE 1=1 ");
@@ -224,10 +187,6 @@ public class Titulaire extends Personne {
 
     public static void SupprimeTitulaire_Discipline(Integer discipline, Integer ID) {
         // 插入数据的 SQL 语句
-
-
-
-
         StringBuilder delete = new StringBuilder( "DELETE FROM Titulaire ");
 
         delete.append("WHERE 1=1 ");
@@ -256,6 +215,135 @@ public class Titulaire extends Personne {
         }
     }
 
+public static void UpdateTitulaire(Integer numbureau,Integer conID, Integer connumbureau) {
+    // 构建 UPDATE 语句
+    StringBuilder update = new StringBuilder("UPDATE Titulaire SET ");
+    boolean hasFields = false;
+
+    // 拼接 SET 子句
+    if (numbureau != null) {
+        update.append("numbureau = ?, ");
+        hasFields = true;
+    }
+
+    // 删除最后一个多余的逗号
+    if (hasFields) {
+        update.deleteCharAt(update.length() - 2);
+    } else {
+        System.out.println("没有需要更新的字段，更新操作已取消。");
+        return;
+    }
+
+    // 拼接 WHERE 子句
+    update.append(" WHERE 1=1 ");
+    boolean hasConditions = false;
+
+    if (conID != null) {
+        update.append("AND ID = ? ");
+        hasConditions = true;
+    }
+   if (connumbureau != null) {
+        update.append("AND numbureau = ? ");
+        hasConditions = true;
+    }
+    // 如果没有条件，取消操作，避免全表更新
+    if (!hasConditions) {
+        System.out.println("没有条件，无法执行更新操作。");
+        return;
+    }
+
+    // 打印生成的 SQL 查询（调试用）
+    System.out.println("生成的 SQL 查询: " + update);
+
+    try (Connection conn = BDConnect.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(update.toString())) {
+
+        int paramIndex = 1;
+
+        // 设置 SET 子句的参数
+        if (numbureau != null) pstmt.setInt(paramIndex++, numbureau);
+
+        // 设置 WHERE 子句的参数
+        if (conID != null) pstmt.setInt(paramIndex++, conID);
+        if (connumbureau != null) pstmt.setInt(paramIndex++, connumbureau);
+
+        // 执行更新语句
+        int rowsUpdated = pstmt.executeUpdate();
+        if (rowsUpdated > 0) {
+            System.out.println("MCF 数据更新成功！");
+        } else {
+            System.out.println("没有符合条件的数据被更新。");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+public static void UpdateTitulaire_Discipline(Integer discipline_ID,Integer conID, Integer condiscipline_ID) {
+    // 构建 UPDATE 语句
+    StringBuilder update = new StringBuilder("UPDATE Titulaire_Discipline SET ");
+    boolean hasFields = false;
+
+    // 拼接 SET 子句
+    if (discipline_ID != null) {
+        update.append("discipline_ID = ?, ");
+        hasFields = true;
+    }
+
+    // 删除最后一个多余的逗号
+    if (hasFields) {
+        update.deleteCharAt(update.length() - 2);
+    } else {
+        System.out.println("没有需要更新的字段，更新操作已取消。");
+        return;
+    }
+
+    // 拼接 WHERE 子句
+    update.append(" WHERE 1=1 ");
+    boolean hasConditions = false;
+
+    if (conID != null) {
+        update.append("AND ID = ? ");
+        hasConditions = true;
+    }
+    if (condiscipline_ID != null) {
+        update.append("AND discipline_ID = ? ");
+        hasConditions = true;
+    }
+
+    // 如果没有条件，取消操作，避免全表更新
+    if (!hasConditions) {
+        System.out.println("没有条件，无法执行更新操作。");
+        return;
+    }
+
+    // 打印生成的 SQL 查询（调试用）
+    System.out.println("生成的 SQL 查询: " + update);
+
+    try (Connection conn = BDConnect.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(update.toString())) {
+
+        int paramIndex = 1;
+
+        // 设置 SET 子句的参数
+        if ( discipline_ID!= null) pstmt.setInt(paramIndex++, discipline_ID);
+
+        // 设置 WHERE 子句的参数
+        if (conID != null) pstmt.setInt(paramIndex++, conID);
+        if (condiscipline_ID != null) pstmt.setInt(paramIndex++, condiscipline_ID);   
+        // 执行更新语句
+        int rowsUpdated = pstmt.executeUpdate();
+        if (rowsUpdated > 0) {
+            System.out.println("MCF 数据更新成功！");
+        } else {
+            System.out.println("没有符合条件的数据被更新。");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 
 
 

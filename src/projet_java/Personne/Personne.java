@@ -449,4 +449,104 @@ public class Personne {
             e.printStackTrace();
         }
     }
+
+  public static void UpdatePersonne(String nom, String prenom, Integer age, String ville,
+                                  Integer ID, String connom, String conprenom, Integer conage, String conville) {
+    // 构建 UPDATE 语句
+    StringBuilder update = new StringBuilder("UPDATE Personne SET ");
+    boolean hasFields = false;
+
+    // 拼接 SET 子句
+    if (nom != null) {
+        update.append("nom = ?, ");
+        hasFields = true;
+    }
+    if (prenom != null) {
+        update.append("prenom = ?, ");
+        hasFields = true;
+    }
+    if (age != null) {
+        update.append("age = ?, ");
+        hasFields = true;
+    }
+    if (ville != null) {
+        update.append("ville = ?, ");
+        hasFields = true;
+    }
+
+    // 删除最后一个多余的逗号
+    if (hasFields) {
+        update.deleteCharAt(update.length() - 2);
+    } else {
+        System.out.println("没有需要更新的字段，更新操作已取消。");
+        return;
+    }
+
+    // 拼接 WHERE 子句
+    update.append(" WHERE 1=1 ");
+    boolean hasConditions = false;
+
+    if (ID != null) {
+        update.append("AND ID = ? ");
+        hasConditions = true;
+    }
+    if (connom != null) {
+        update.append("AND nom = ? ");
+        hasConditions = true;
+    }
+    if (conprenom != null) {
+        update.append("AND prenom = ? ");
+        hasConditions = true;
+    }
+    if (conage != null) {
+        update.append("AND age = ? ");
+        hasConditions = true;
+    }
+    if (conville != null) {
+        update.append("AND ville = ? ");
+        hasConditions = true;
+    }
+
+    // 如果没有条件，取消操作，避免全表更新
+    if (!hasConditions) {
+        System.out.println("没有条件，无法执行更新操作。");
+        return;
+    }
+
+    // 打印生成的 SQL 查询（调试用）
+    System.out.println("生成的 SQL 查询: " + update);
+
+    try (Connection conn = BDConnect.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(update.toString())) {
+
+        int paramIndex = 1;
+
+        // 设置 SET 子句的参数
+        if (nom != null) pstmt.setString(paramIndex++, nom);
+        if (prenom != null) pstmt.setString(paramIndex++, prenom);
+        if (age != null) pstmt.setInt(paramIndex++, age);
+        if (ville != null) pstmt.setString(paramIndex++, ville);
+
+        // 设置 WHERE 子句的参数
+        if (ID != null) pstmt.setInt(paramIndex++, ID);
+        if (connom != null) pstmt.setString(paramIndex++, connom);
+        if (conprenom != null) pstmt.setString(paramIndex++, conprenom);
+        if (conage != null) pstmt.setInt(paramIndex++, conage);
+        if (conville != null) pstmt.setString(paramIndex++, conville);
+
+        // 执行更新语句
+        int rowsUpdated = pstmt.executeUpdate();
+        if (rowsUpdated > 0) {
+            System.out.println("Personne 数据更新成功！");
+        } else {
+            System.out.println("没有符合条件的数据被更新。");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+  }
+
+
+
 }
