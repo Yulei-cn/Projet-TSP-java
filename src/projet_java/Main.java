@@ -1,13 +1,12 @@
 package projet_java;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.*;
 
 import projet_java.Algo.*;
 import projet_java.Geographie.*;
 import projet_java.Personne.*;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -52,6 +51,8 @@ public class Main {
 
     private static void createDataAndTables() {
         CreatTable.Creat();
+        Discipline.insertAllDisciplines();
+        Scanner scanner = new Scanner(System.in);
         System.out.println("数据库表和触发器创建完成！");
     }
 
@@ -61,41 +62,27 @@ public class Main {
         try (Connection conn = BDConnect.getConnection()) {
             while (running) {
                 System.out.println("请选择数据库操作：");
-                System.out.println("1. 更新学生数据");
-                System.out.println("2. 更新人员数据");
-                System.out.println("3. 更新研究员数据");
-                System.out.println("4. 更新MCF数据");
-                System.out.println("5. 更新导师数据");
-                System.out.println("6. 更新导师学科数据");
-                System.out.println("7. 返回主菜单");
-                System.out.print("请选择一个选项 (1-7): ");
+                System.out.println("1. 插入操作");
+                System.out.println("2. 更新操作");
+                System.out.println("3. 删除操作");
+                System.out.println("4. 返回主菜单");
+                System.out.print("请选择一个选项 (1-4): ");
 
                 int roleChoice = scanner.nextInt();
                 scanner.nextLine(); // 清除换行符
 
-                if (roleChoice == 7) {
-                    running = false;
-                    break;
-                }
-
                 switch (roleChoice) {
                     case 1:
-                        updateEtudiant(scanner);
+                        InsertMenu.executeInsertMenu(scanner);
                         break;
                     case 2:
-                    	updatePersonne(scanner);
+                        UpdateMenu.executeUpdateMenu(scanner);
                         break;
                     case 3:
-                        updateChercheur(scanner);
+                        SupprimeMenu.Supprime(scanner);
                         break;
                     case 4:
-                        updateMCF(scanner);
-                        break;
-                    case 5:
-                        updateTitulaire(scanner);
-                        break;
-                    case 6:
-                        updateTitulaireDiscipline(scanner);
+                        running = false;
                         break;
                     default:
                         System.out.println("无效的选择！");
@@ -106,148 +93,7 @@ public class Main {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> T parseNullableInput(String input, Class<T> type) {
-        if (input.isEmpty()) {
-            return null;
-        }
 
-        try {
-            if (type == Integer.class) {
-                return (T) Integer.valueOf(input);
-            } else if (type == String.class) {
-                return (T) input;
-            }
-        } catch (Exception e) {
-            System.out.println("无效的输入：" + input + "，将被忽略。");
-        }
-
-        return null;
-    }
-
-    private static void updateEtudiant(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
-
-        System.out.print("现有的学生ID (可选): ");
-        Integer conpersonneId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的论文题目 (可选): ");
-        String consujetDeThese = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("现有的学科编号 (可选): ");
-        Integer condisciplineId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的论文年份 (可选): ");
-        Integer conanneeDeThese = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的导师ID (可选): ");
-        Integer conencadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新论文题目 (可选): ");
-        String sujetDeThese = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("新学科编号 (可选): ");
-        Integer disciplineId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新论文年份 (可选): ");
-        Integer anneeDeThese = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新导师ID (可选): ");
-        Integer encadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        Etudiant.UpdateEtudiant(sujetDeThese, disciplineId, anneeDeThese, encadrantId, conpersonneId, consujetDeThese, condisciplineId, conanneeDeThese, conencadrantId);
-    }
-
-    private static void updatePersonne(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
-
-        System.out.print("现有的人员ID (可选): ");
-        Integer conID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的姓名 (可选): ");
-        String connom = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("现有的姓氏 (可选): ");
-        String conprenom = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("现有的年龄 (可选): ");
-        Integer conage = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的城市 (可选): ");
-        String conville = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("新姓名 (可选): ");
-        String nom = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("新姓氏 (可选): ");
-        String prenom = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        System.out.print("新年龄 (可选): ");
-        Integer age = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新城市 (可选): ");
-        String ville = parseNullableInput(scanner.nextLine().trim(), String.class);
-
-        Personne.UpdatePersonne(nom, prenom, age, ville, conID, connom, conprenom, conage, conville);
-    }
-
-    private static void updateChercheur(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
-
-        System.out.print("现有的研究员ID (可选): ");
-        Integer conID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的学生ID (可选): ");
-        Integer conEtudiant_ID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新学生ID (可选): ");
-        Integer Etudiant_ID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        Chercheur.UpdateChercheur(Etudiant_ID, conID, conEtudiant_ID);
-    }
-    private static void updateMCF(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
-
-        System.out.print("现有的MCF ID (可选): ");
-        Integer conID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的学生ID (可选): ");
-        Integer conetudiant = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新学生ID (可选): ");
-        Integer etudiant = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        MCF.UpdateMCF(etudiant, conID, conetudiant);
-    }
-    private static void updateTitulaire(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
-
-        System.out.print("现有的导师ID (可选): ");
-        Integer conID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的办公室编号 (可选): ");
-        Integer connumbureau = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新办公室编号 (可选): ");
-        Integer numbureau = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        Titulaire.UpdateTitulaire(numbureau, conID, connumbureau);
-    }
-
-    private static void updateTitulaireDiscipline(Scanner scanner) {
-        System.out.println("请输入更新条件和新值：");
-
-        System.out.print("现有的导师学科ID (可选): ");
-        Integer conID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("现有的学科ID (可选): ");
-        Integer condiscipline_ID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        System.out.print("新学科ID (可选): ");
-        Integer discipline_ID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
-
-        Titulaire.UpdateTitulaire_Discipline(discipline_ID, conID, condiscipline_ID);
-    }
 
 
     private static void geneticAlgorithmMenu(Scanner scanner) {
@@ -293,14 +139,21 @@ public class Main {
                         String anneeDeTheseInput = scanner.nextLine().trim();
                         Integer anneeDeThese = anneeDeTheseInput.isEmpty() ? null : Integer.parseInt(anneeDeTheseInput);
 
-                        System.out.print("Nom de l'encadrant : ");
+                        System.out.print("l'encadrant : ");
                         String encadrantInput = scanner.nextLine().trim();
                         Integer encadrant = encadrantInput.isEmpty() ? null : Integer.parseInt(encadrantInput);
 
-                        List<Personne> personnes = Personne.searchByDynamicConditions(
-                            nom, prenom, age, nomVille, discipline, anneeDeThese, encadrant
-                        );
+                        System.out.print("chercheur id : ");
+                        String chercheurInput = scanner.nextLine().trim();
+                        Integer chercheur = chercheurInput.isEmpty() ? null : Integer.parseInt(chercheurInput);
 
+                        System.out.print("mcf id : ");
+                        String mcfInput = scanner.nextLine().trim();
+                        Integer mcf = mcfInput.isEmpty() ? null : Integer.parseInt(mcfInput);
+                       List<Personne> personnes = Personne.searchByDynamicConditions(
+                            nom, prenom, age, nomVille, discipline, anneeDeThese, encadrant,chercheur,mcf
+                        );
+                        
                         if (personnes.isEmpty()) {
                             System.out.println("Aucune donnée correspondante trouvée, veuillez réessayer。");
                         } else {

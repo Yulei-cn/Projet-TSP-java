@@ -17,10 +17,28 @@ public class Chercheur extends Titulaire {
         this.etudiants = etudiants;
     }
 
-    public Set<Etudiant> getEtudiants() {
-        return etudiants;
-    }
 
+    public static void insertChercheur(int ID, int etudiantID) {
+        String insertChercheurSQL = "INSERT INTO Chercheur (ID, etudiant) VALUES (?, ?)";
+
+        try (Connection conn = BDConnect.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(insertChercheurSQL)) {
+
+            pstmt.setInt(1, ID);
+            pstmt.setInt(2, etudiantID);
+
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("Chercheur 数据插入成功！");
+            } else {
+                System.out.println("Chercheur 数据插入失败！");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     public static void SupprimeChercheur(Integer ID,  Integer Etudiant_ID) {
         // 插入数据的 SQL 语句
         StringBuilder delete = new StringBuilder( "DELETE FROM chercheur");
@@ -44,6 +62,9 @@ public class Chercheur extends Titulaire {
             int rowsInserted = pstmt.executeUpdate();
             if (rowsInserted > 0) {
                 System.out.println("Etudiant 数据删除成功！");
+            }
+           else{
+                System.out.println("Etudiant 数据删除失败！");
             }
         } catch (SQLException e) {
             e.printStackTrace();

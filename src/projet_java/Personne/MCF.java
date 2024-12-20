@@ -44,6 +44,9 @@ public class MCF extends Titulaire {
             if (rowsInserted > 0) {
                 System.out.println("Etudiant 数据删除成功！");
             }
+            else{
+                System.out.println("Etudiant 数据删除失败！");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -113,6 +116,7 @@ public class MCF extends Titulaire {
         e.printStackTrace();
     }
 }
+
 
 
     @Override

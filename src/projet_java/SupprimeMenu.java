@@ -1,6 +1,11 @@
 package projet_java;
 
-import java.util.Scanner;
+import java.sql.Connection;
+import java.util.*;
+
+import projet_java.Algo.*;
+import projet_java.Geographie.*;
+import projet_java.Personne.*;
 
 public class SupprimeMenu {
 
@@ -31,7 +36,7 @@ public class SupprimeMenu {
                 System.out.print("请输入导师ID (可选): ");
                 Integer encadrantId = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                DeleteOperations.SupprimeEtudiant(etudiantID, sujetDeThese, disciplineId, anneeDeThese, encadrantId);
+                Etudiant.SupprimeEtudiant(etudiantID, sujetDeThese, disciplineId, anneeDeThese, encadrantId);
                 break;
             case 2:
                 System.out.print("请输入人员ID (可选): ");
@@ -45,7 +50,7 @@ public class SupprimeMenu {
                 System.out.print("请输入城市 (可选): ");
                 String ville = parseNullableInput(scanner.nextLine().trim(), String.class);
 
-                DeleteOperations.SupprimePersonne(personneID, nom, prenom, age, ville);
+                Personne.SupprimePersonne(personneID, nom, prenom, age, ville);
                 break;
             case 3:
                 System.out.print("请输入研究员ID (可选): ");
@@ -53,7 +58,7 @@ public class SupprimeMenu {
                 System.out.print("请输入学生ID (可选): ");
                 Integer chercheurEtudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                DeleteOperations.SupprimeChercheur(chercheurID, chercheurEtudiantID);
+                Chercheur.SupprimeChercheur(chercheurID, chercheurEtudiantID);
                 break;
             case 4:
                 System.out.print("请输入MCF ID (可选): ");
@@ -61,7 +66,7 @@ public class SupprimeMenu {
                 System.out.print("请输入学生ID (可选): ");
                 Integer mcfEtudiantID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                DeleteOperations.SupprimeMCF(mcfID, mcfEtudiantID);
+                MCF.SupprimeMCF(mcfID, mcfEtudiantID);
                 break;
             case 5:
                 System.out.print("请输入导师ID (可选): ");
@@ -69,7 +74,7 @@ public class SupprimeMenu {
                 System.out.print("请输入办公室编号 (可选): ");
                 Integer titulaireNumbureau = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                DeleteOperations.SupprimeTitulaire(titulaireID, titulaireNumbureau);
+                Titulaire.SupprimeTitulaire(titulaireID, titulaireNumbureau);
                 break;
             case 6:
                 System.out.print("请输入导师学科ID (可选): ");
@@ -77,7 +82,7 @@ public class SupprimeMenu {
                 System.out.print("请输入学科编号 (可选): ");
                 Integer titulaireDisciplineID = parseNullableInput(scanner.nextLine().trim(), Integer.class);
 
-                DeleteOperations.SupprimeTitulaire_Discipline(disciplineID, titulaireDisciplineID);
+                Titulaire.SupprimeTitulaire_Discipline(disciplineID, titulaireDisciplineID);
                 break;
             case 7:
                 System.out.println("返回上一菜单...");

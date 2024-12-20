@@ -3,7 +3,6 @@ package projet_java.Personne;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.sql.ResultSet;
 
 public class CreatTable {
     public static void Creat() {
@@ -59,7 +58,7 @@ public class CreatTable {
                 CREATE TABLE IF NOT EXISTS Chercheur (
                     ID INT REFERENCES Titulaire(ID),
                     etudiant INT REFERENCES Etudiant(ID),
-                    PRIMARY KEY(ID,etudiant)
+                    PRIMARY KEY(ID, etudiant)
                 );
                 """;
 
@@ -97,19 +96,25 @@ public class CreatTable {
 
         // 角色验证触发器，确保一个Personne只能属于一个角色
         String createRoleValidationTrigger = """
-                CREATE OR REPLACE FUNCTION validate_unique_role()
-                RETURNS TRIGGER AS $$
-                BEGIN
-                    IF (NEW.ID IN (SELECT ID FROM Etudiant)) THEN
-                        RAISE EXCEPTION 'ID % already exists as an Etudiant', NEW.ID;
-                    ELSIF (NEW.ID IN (SELECT ID FROM Titulaire)) THEN
-                        RAISE EXCEPTION 'ID % already exists as a Titulaire', NEW.ID;
-                    ELSIF (NEW.ID IN (SELECT ID FROM Chercheur)) THEN
-                        RAISE EXCEPTION 'ID % already exists as a Chercheur', NEW.ID;
-                    END IF;
-                    RETURN NEW;
-                END;
-                $$ LANGUAGE plpgsql;
+				CREATE OR REPLACE FUNCTION validate_unique_role()
+				RETURNS TRIGGER AS $$
+				BEGIN
+				    -- 仅在插入时检测，而不是在自动生成时检测
+				    IF TG_OP = 'INSERT' AND NOT EXISTS (
+				        SELECT 1 FROM Titulaire WHERE ID = NEW.ID
+				    ) THEN
+				        IF (NEW.ID IN (SELECT ID FROM Etudiant)) THEN
+				            RAISE EXCEPTION 'ID % already exists as an Etudiant', NEW.ID;
+				        ELSIF (NEW.ID IN (SELECT ID FROM Titulaire)) THEN
+				            RAISE EXCEPTION 'ID % already exists as a Titulaire', NEW.ID;
+				        ELSIF (NEW.ID IN (SELECT ID FROM Chercheur)) THEN
+				            RAISE EXCEPTION 'ID % already exists as a Chercheur', NEW.ID;
+				        END IF;
+				    END IF;
+				
+				    RETURN NEW;
+				END;
+				$$ LANGUAGE plpgsql;
 
                 CREATE TRIGGER unique_role_trigger
                 BEFORE INSERT ON Etudiant
@@ -125,6 +130,60 @@ public class CreatTable {
                 BEFORE INSERT ON Chercheur
                 FOR EACH ROW
                 EXECUTE FUNCTION validate_unique_role();
+                """;
+
+        // 插入 MCF 时自动生成 Titulaire 和 Personne
+        String createAutoInsertTriggerForMCF = """
+                CREATE OR REPLACE FUNCTION auto_insert_titulaire_for_mcf()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    -- 检查 Personne 是否存在
+                    IF NOT EXISTS (SELECT 1 FROM Personne WHERE ID = NEW.ID) THEN
+                        INSERT INTO Personne (ID, nom, prenom, age, ville)
+                        VALUES (NEW.ID, '默认名字', '默认姓氏', 30, '默认城市');
+                    END IF;
+
+                    -- 检查 Titulaire 是否存在
+                    IF NOT EXISTS (SELECT 1 FROM Titulaire WHERE ID = NEW.ID) THEN
+                        INSERT INTO Titulaire (ID, numBureau)
+                        VALUES (NEW.ID, 101); -- 默认办公室编号
+                    END IF;
+
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER auto_insert_titulaire_trigger_for_mcf
+                BEFORE INSERT ON MCF
+                FOR EACH ROW
+                EXECUTE FUNCTION auto_insert_titulaire_for_mcf();
+                """;
+
+        // 插入 Chercheur 时自动生成 Titulaire 和 Personne
+        String createAutoInsertTriggerForChercheur = """
+                CREATE OR REPLACE FUNCTION auto_insert_titulaire_for_chercheur()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    -- 检查 Personne 是否存在
+                    IF NOT EXISTS (SELECT 1 FROM Personne WHERE ID = NEW.ID) THEN
+                        INSERT INTO Personne (ID, nom, prenom, age, ville)
+                        VALUES (NEW.ID, '默认名字', '默认姓氏', 30, '默认城市');
+                    END IF;
+
+                    -- 检查 Titulaire 是否存在
+                    IF NOT EXISTS (SELECT 1 FROM Titulaire WHERE ID = NEW.ID) THEN
+                        INSERT INTO Titulaire (ID, numBureau)
+                        VALUES (NEW.ID, 102); -- 默认办公室编号
+                    END IF;
+
+                    RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER auto_insert_titulaire_trigger_for_chercheur
+                BEFORE INSERT ON Chercheur
+                FOR EACH ROW
+                EXECUTE FUNCTION auto_insert_titulaire_for_chercheur();
                 """;
 
         // 执行建表和触发器创建
@@ -147,6 +206,8 @@ public class CreatTable {
                 // 创建触发器和验证规则
                 stmt.execute(createTriggerFunction);
                 stmt.execute(createRoleValidationTrigger);
+                stmt.execute(createAutoInsertTriggerForMCF);
+                stmt.execute(createAutoInsertTriggerForChercheur);
 
                 // 提交事务
                 conn.commit();

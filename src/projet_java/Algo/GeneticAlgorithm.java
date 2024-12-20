@@ -75,6 +75,7 @@ public class GeneticAlgorithm {
     public Solution solveTSP(List<City> cities, int sizepop, double probmutate, double rateelite, 
                             int maxIterations, String saveDirectory, String fileName) {
         Population population = initPopulation(cities, sizepop);
+        Solution previousBestSolution = null;
 
         for (int iteration = 0; iteration < maxIterations; iteration++) {
             Population newPopulation = new Population(new ArrayList<>(), 0);
@@ -93,7 +94,15 @@ public class GeneticAlgorithm {
 
             elitism(newPopulation, population, rateelite);
             population = newPopulation;
-            System.out.println("第 " + (iteration + 1) + " 代最佳路径：" + population.getBestSolution());
+
+            Solution currentBestSolution = population.getBestSolution();
+
+            // 如果当前最优解没有变化，提前终止
+            if (previousBestSolution != null && currentBestSolution.equals(previousBestSolution)) {
+                System.out.println("算法已收敛，提前结束。");
+                break;
+            }
+            previousBestSolution = currentBestSolution;
         }
 
         // 获取最终最优解
